@@ -31,6 +31,18 @@ public class LaserProjectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // add asteroid and enemy/player collision
+        if (!isPlayerLaser && other.gameObject.CompareTag("Player"))
+        {
+            other.GetComponent<PlayerController>().Damage();
+        }
+        else if (isPlayerLaser && other.gameObject.CompareTag("Enemy"))
+        {
+            Destroy(other.gameObject);
+        }
+        else if (other.gameObject.CompareTag("Asteroid"))
+        {
+            other.GetComponent<Asteroid>().Damage();
+        }
+        Destroy(gameObject);
     }
 }

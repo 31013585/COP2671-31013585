@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private int health = 5;
+
     [SerializeField] private float xScreenLimit = 15f;
     [SerializeField] private float yScreenLimit = 10f;
 
@@ -12,7 +14,10 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private float moveSpeed = 5f;
     private Rigidbody rb;
-    
+
+    [SerializeField] private float shootDelay = 0.5f;
+    private float shootTime = 0;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -20,8 +25,13 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (shootTime <= 0 && Input.GetKeyDown(KeyCode.Space))
             SpawnLaser();
+
+        if (shootTime > 0)
+            shootTime -= Time.deltaTime;
+        else
+            shootTime = 0;
 
         // get the player input
         float horizontal = Input.GetAxis("Horizontal");
@@ -49,10 +59,29 @@ public class PlayerController : MonoBehaviour
         rb.velocity = move;        
     }
 
+    public void Damage()
+    {
+        health--;
+        if (health <= 0)
+            Destroy(gameObject);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy") ||
+            collision.gameObject.CompareTag("Asteroid"))
+        {
+            Destroy(gameObject);
+            Destroy(collision.gameObject);
+        }
+    }
+
     private void SpawnLaser()
     {
         LaserProjectile laser = Instantiate(laserPrefab).GetComponent<LaserProjectile>();
         laser.transform.position = laserSpawnPoint.position;
         laser.Setup(true, true);
+
+        shootTime = shootDelay;
     }
 }

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4363788796782551442}
   - component: {fileID: 8679931351521823440}
   - component: {fileID: 3757065624230879584}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Laser
   m_TagString: Laser
   m_Icon: {fileID: 0}
@@ -82,7 +82,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2.4, y: 0.4, z: 0.4}
+  m_Size: {x: 1.3, y: 0.4, z: 0.4}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3757065624230879584
 MonoBehaviour:
@@ -107,7 +107,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6421877563947697683}
   - component: {fileID: 8908430459331639751}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -203,7 +203,7 @@ GameObject:
   - component: {fileID: 7828350741294187865}
   - component: {fileID: 6438650384928297240}
   - component: {fileID: 1250075472044641595}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -220,7 +220,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.29, y: 0.28, z: 0.28}
+  m_LocalScale: {x: 1.2, y: 0.28, z: 0.28}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7469659064604899796}
