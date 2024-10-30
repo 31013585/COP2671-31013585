@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class LaserProjectile : MonoBehaviour
-{
+{   
     [SerializeField] private float moveSpeed = 7f;
     private Rigidbody rb;
 
@@ -13,6 +13,7 @@ public class LaserProjectile : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        SoundManager.instance.Laser();
     }
 
     public void Setup(bool moveRight, bool isPlayer)
@@ -37,12 +38,15 @@ public class LaserProjectile : MonoBehaviour
         }
         else if (isPlayerLaser && other.gameObject.CompareTag("Enemy"))
         {
+            SoundManager.instance.Explosion();
+            ExplosionMaker.Instance.CreateExplosion(other.gameObject.transform.position);
             Destroy(other.gameObject);
         }
         else if (other.gameObject.CompareTag("Asteroid"))
         {
             other.GetComponent<Asteroid>().Damage();
         }
+        SoundManager.instance.Hit();
         Destroy(gameObject);
     }
 }

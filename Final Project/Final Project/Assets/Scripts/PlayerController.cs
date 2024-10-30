@@ -63,7 +63,11 @@ public class PlayerController : MonoBehaviour
     {
         health--;
         if (health <= 0)
+        {
+            SoundManager.instance.Explosion();
+            ExplosionMaker.Instance.CreateExplosion(transform.position);
             Destroy(gameObject);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -71,6 +75,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Enemy") ||
             collision.gameObject.CompareTag("Asteroid"))
         {
+            SoundManager.instance.Explosion();
             Destroy(gameObject);
             Destroy(collision.gameObject);
         }

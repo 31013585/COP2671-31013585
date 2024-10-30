@@ -183,6 +183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laserPrefab: {fileID: 75394396373602648, guid: 414c4adc29ba7fa4f9efe4495cd891b3, type: 3}
   laserSpawnPoint: {fileID: 3657963438316640073}
+  laserSpawnSound: {fileID: 0}
   moveSpeed: 5
   laserShootTime: 1.5
 --- !u!1 &4629285110607630123

@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnemyShip : MonoBehaviour
 {
     [SerializeField] private GameObject laserPrefab;
-    [SerializeField] private Transform laserSpawnPoint;
+    [SerializeField] private Transform laserSpawnPoint;   
 
     [SerializeField] private float moveSpeed = 5f;
     private Rigidbody rb;

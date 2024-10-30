@@ -52,6 +52,12 @@ public class Asteroid : MonoBehaviour
     {
         health--;
         if (health <= 0)
+        {
+            SoundManager.instance.Explosion();
+            ExplosionMaker.Instance.CreateExplosion(transform.position);
             Destroy(gameObject);
+        }
+        else
+            SoundManager.instance.Hit();
     }
 }
