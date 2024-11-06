@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
 
     [SerializeField] private float shootDelay = 0.5f;
-    private float shootTime = 0;
+    private bool canShoot = true;
 
     void Start()
     {
@@ -25,13 +25,8 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (shootTime <= 0 && Input.GetKeyDown(KeyCode.Space))
-            SpawnLaser();
-
-        if (shootTime > 0)
-            shootTime -= Time.deltaTime;
-        else
-            shootTime = 0;
+        if (canShoot && Input.GetKeyDown(KeyCode.Space))
+            StartCoroutine(Shoot());
 
         // get the player input
         float horizontal = Input.GetAxis("Horizontal");
@@ -59,6 +54,14 @@ public class PlayerController : MonoBehaviour
         rb.velocity = move;        
     }
 
+    IEnumerator Shoot()
+    {
+        canShoot = false;
+        SpawnLaser();
+        yield return new WaitForSeconds(shootDelay);
+        canShoot = true;
+    }
+
     public void Damage()
     {
         health--;
@@ -70,12 +73,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // explode on contact
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Enemy") ||
             collision.gameObject.CompareTag("Asteroid"))
         {
             SoundManager.instance.Explosion();
+            ExplosionMaker.Instance.CreateExplosion(transform.position);
             Destroy(gameObject);
             Destroy(collision.gameObject);
         }
@@ -86,7 +91,5 @@ public class PlayerController : MonoBehaviour
         LaserProjectile laser = Instantiate(laserPrefab).GetComponent<LaserProjectile>();
         laser.transform.position = laserSpawnPoint.position;
         laser.Setup(true, true);
-
-        shootTime = shootDelay;
     }
 }

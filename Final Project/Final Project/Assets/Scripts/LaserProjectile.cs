@@ -38,9 +38,7 @@ public class LaserProjectile : MonoBehaviour
         }
         else if (isPlayerLaser && other.gameObject.CompareTag("Enemy"))
         {
-            SoundManager.instance.Explosion();
-            ExplosionMaker.Instance.CreateExplosion(other.gameObject.transform.position);
-            Destroy(other.gameObject);
+            other.GetComponent<EnemyShip>().Damage();
         }
         else if (other.gameObject.CompareTag("Asteroid"))
         {

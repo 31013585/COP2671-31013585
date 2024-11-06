@@ -606,7 +606,9 @@ MonoBehaviour:
   - 60
   - 90
   - 120
+  - 150
   currentDifficulty: 0
+  difficultyPoints: 3200000064000000c8000000900100002003000040060000
   enemyShipPrefab: {fileID: 3544225400475789401, guid: 095d5fab5d867144fa9e85764c65136a, type: 3}
   enemySpawnChance: 30
   asteroidPrefab: {fileID: 5862397555870236281, guid: 9e304d031f6cd304e86ad546957a947d, type: 3}

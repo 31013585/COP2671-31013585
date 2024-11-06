@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Asteroid : MonoBehaviour
 {
@@ -20,6 +21,9 @@ public class Asteroid : MonoBehaviour
 
     private Rigidbody rb;
 
+    public UnityEvent<int> OnDestroy;
+    private int points;
+
     void Start()
     {
         speed = Random.Range(speedMin, speedMax);
@@ -37,6 +41,11 @@ public class Asteroid : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
     
+    public void SetPoints(int pts)
+    {
+        points = pts / 2;
+    }
+
     void Update()
     {
         rb.velocity = Vector3.left * speed;
@@ -53,6 +62,8 @@ public class Asteroid : MonoBehaviour
         health--;
         if (health <= 0)
         {
+            OnDestroy.Invoke(points);
+
             SoundManager.instance.Explosion();
             ExplosionMaker.Instance.CreateExplosion(transform.position);
             Destroy(gameObject);
