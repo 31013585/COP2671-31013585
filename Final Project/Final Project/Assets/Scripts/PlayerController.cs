@@ -18,14 +18,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float shootDelay = 0.5f;
     private bool canShoot = true;
 
+    private GameManager gameManager;
+
     void Start()
     {
+        gameManager = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
+
         rb = GetComponent<Rigidbody>();
     }
 
     private void Update()
     {
-        if (canShoot && Input.GetKeyDown(KeyCode.Space))
+        if (canShoot && Input.GetKeyDown(KeyCode.Space) && Time.timeScale > 0)
             StartCoroutine(Shoot());
 
         // get the player input
@@ -65,12 +69,17 @@ public class PlayerController : MonoBehaviour
     public void Damage()
     {
         health--;
+        gameManager.UpdateHealthUI(health);
         if (health <= 0)
-        {
-            SoundManager.instance.Explosion();
-            ExplosionMaker.Instance.CreateExplosion(transform.position);
-            Destroy(gameObject);
-        }
+            Die();
+    }
+
+    private void Die()
+    {
+        SoundManager.instance.Explosion();
+        ExplosionMaker.Instance.CreateExplosion(transform.position);
+        gameManager.StopGame();
+        Destroy(gameObject);
     }
 
     // explode on contact
@@ -81,8 +90,8 @@ public class PlayerController : MonoBehaviour
         {
             SoundManager.instance.Explosion();
             ExplosionMaker.Instance.CreateExplosion(transform.position);
-            Destroy(gameObject);
             Destroy(collision.gameObject);
+            Die();
         }
     }
 

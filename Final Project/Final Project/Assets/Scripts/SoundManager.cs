@@ -16,11 +16,25 @@ public class SoundManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-
-        gameMusic.Play();
     }
 
     public void Explosion() => explosionSFX.Play();
     public void Hit() => hitSFX.Play();
     public void Laser() => laserSFX.Play();
+
+    public void GameMusic(bool play)
+    {
+        if (play)
+            gameMusic.Play();
+        else
+            gameMusic.Stop();
+    }
+
+    public void TitleMusic(bool play)
+    {
+        if (play)
+            titleMusic.Play();
+        else
+            titleMusic.Stop();
+    }
 }

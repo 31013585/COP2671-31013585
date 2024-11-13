@@ -47,4 +47,9 @@ public class EnemyShip : MonoBehaviour
         laser.transform.position = laserSpawnPoint.position;
         laser.Setup(false, false);
     }
+
+    public void Kill()
+    {
+        Destroy(gameObject);
+    }
 }

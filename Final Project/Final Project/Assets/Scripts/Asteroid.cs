@@ -33,9 +33,9 @@ public class Asteroid : MonoBehaviour
 
         float scale = Random.Range(scaleMin, scaleMax);
         transform.localScale = Vector3.one * scale;
-        if (scale >= 1.5f)
+        if (scale >= 1.9f)
             health = Mathf.FloorToInt(health * 1.5f);
-        else if (scale > 2.5f)
+        else if (scale > 2.6f)
             health = Mathf.FloorToInt(health * 2f);
 
         rb = GetComponent<Rigidbody>();
@@ -70,5 +70,10 @@ public class Asteroid : MonoBehaviour
         }
         else
             SoundManager.instance.Hit();
+    }
+
+    public void Kill()
+    {
+        Destroy(gameObject);
     }
 }

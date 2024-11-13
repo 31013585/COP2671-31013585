@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -21,34 +24,135 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject asteroidPrefab;
     [SerializeField] private float obstacleSpawnTime = 2f;
 
+    [SerializeField] private GameObject playerShipPrefab;
+
+    [SerializeField] private GameObject titleScreen;
+    [SerializeField] private GameObject gameOverScreen;
+    [SerializeField] private GameObject pauseMenu;
+
+    [SerializeField] private TextMeshProUGUI pointsUI;
+    [SerializeField] private TextMeshProUGUI timeUI;
+    [SerializeField] private TextMeshProUGUI highscoreUI;
+    [SerializeField] private TextMeshProUGUI difficultyUI;
+    [SerializeField] private RawImage[] healthUI;
+
+    public UnityEvent GameOver;
+
     private int totalPoints;
+    private int highestPoints = 0;
+
+    private bool pauseGame = false;
+    private bool gameRunning = false;
+    private bool spawnObstacles = false;
 
     private void Start()
     {
-        InvokeRepeating(nameof(SpawnObstacle), 1f, obstacleSpawnTime);
+        titleScreen.SetActive(true);
+        gameOverScreen.SetActive(false);
+        pauseMenu.SetActive(false);
+
+        pointsUI.enabled = false;
+        timeUI.enabled = false;
+        UpdateHealthUI(0);
+        highscoreUI.enabled = false;
+        difficultyUI.enabled = false;
+
+        SoundManager.instance.TitleMusic(true);
     }
 
-    private void SpawnObstacle()
+    public void StartGame()
     {
-        int chance = Random.Range(0, 100);
-        if (chance <= enemySpawnChance)
-            SpawnEnemy();
+        gameTime = 0;
+        currentDifficulty = 0;
+        enemySpawnChance = 30;
+        obstacleSpawnTime = 2;
+        totalPoints = 0;
+
+        gameRunning = true;
+        spawnObstacles = true;
+        pointsUI.enabled = true;
+        timeUI.enabled = true;
+        highscoreUI.enabled = true;
+        difficultyUI.enabled = true;
+        UpdateHealthUI(5);
+
+        titleScreen.SetActive(false);
+        gameOverScreen.SetActive(false);
+        SoundManager.instance.TitleMusic(false);
+        SoundManager.instance.GameMusic(true);
+        Instantiate(playerShipPrefab, Vector3.zero, Quaternion.identity);
+        StartCoroutine(SpawnObstacles());
+    }
+
+    public void StopGame()
+    {
+        gameRunning = false;
+        spawnObstacles = false;
+
+        GameOver.Invoke();
+
+        gameOverScreen.SetActive(true);
+        SoundManager.instance.TitleMusic(true);
+        SoundManager.instance.GameMusic(false);
+        StopCoroutine(SpawnObstacles());
+    }
+
+    public void Pause()
+    {
+        pauseGame = !pauseGame;
+        if (pauseGame)
+        {
+            Time.timeScale = 0;
+            pauseMenu.SetActive(true);
+        }
         else
-            SpawnAsteroid();
+        {
+            Time.timeScale = 1;
+            pauseMenu.SetActive(false);
+        }
+    }
+
+    public void QuitGame()
+    {
+        // for testing purposes
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #endif
+
+        // for the exported game
+        Application.Quit();
+    }
+
+    IEnumerator SpawnObstacles()
+    {
+        while (spawnObstacles)
+        {
+            int chance = Random.Range(0, 100);
+            if (chance <= enemySpawnChance)
+                SpawnEnemy();
+            else
+                SpawnAsteroid();
+
+            yield return new WaitForSeconds(obstacleSpawnTime);
+        }
     }
 
     private void SpawnAsteroid()
     {
         GameObject asteroid = Instantiate(asteroidPrefab, RandomSpawn(), asteroidPrefab.transform.rotation);
-        asteroid.GetComponent<Asteroid>().SetPoints(difficultyPoints[currentDifficulty]);
-        asteroid.GetComponent<Asteroid>().OnDestroy.AddListener(AddPoints);
+        Asteroid a = asteroid.GetComponent<Asteroid>();
+        a.SetPoints(difficultyPoints[currentDifficulty]);
+        a.OnDestroy.AddListener(AddPoints);
+        GameOver.AddListener(a.Kill);
     }
 
     private void SpawnEnemy()
     {
         GameObject ship = Instantiate(enemyShipPrefab, RandomSpawn(), enemyShipPrefab.transform.rotation);
-        ship.GetComponent<EnemyShip>().SetPoints(difficultyPoints[currentDifficulty]);
-        ship.GetComponent<EnemyShip>().OnDeath.AddListener(AddPoints);
+        EnemyShip e = ship.GetComponent<EnemyShip>();
+        e.SetPoints(difficultyPoints[currentDifficulty]);
+        e.OnDeath.AddListener(AddPoints);
+        GameOver.AddListener(e.Kill);
     }
 
     private Vector3 RandomSpawn()
@@ -57,22 +161,53 @@ public class GameManager : MonoBehaviour
         return new Vector3(25, y, 0);
     }
 
-    public void AddPoints(int pts) => totalPoints += pts;
+    public void AddPoints(int pts)
+    {
+        totalPoints += pts;
+        if (totalPoints > highestPoints)
+            highestPoints = totalPoints;
+    }
+
     public int GetPoints()
     {
         return totalPoints;
     }
 
+    public void UpdateHealthUI(int hp)
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            if (i < hp)
+                healthUI[i].enabled = true;
+            else
+                healthUI[i].enabled = false;
+        }
+    }
+
     void Update()
     {
-        gameTime += Time.deltaTime;
-
-        for (int i = 0; i < difficultyThresholds.Length; i++)
+        if (gameRunning)
         {
-            if (gameTime > difficultyThresholds[i] && currentDifficulty < i + 1)
+            pointsUI.text = "Points " + totalPoints;
+            highscoreUI.text = "Highscore " + highestPoints;
+            difficultyUI.text = "Difficulty " + (DifficultyLevel + 1);
+
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                currentDifficulty = i + 1;
-                IncreaseDifficulty();
+                Pause();
+            }
+
+            gameTime += Time.deltaTime;
+
+            timeUI.text = "Time " + gameTime.ToString("0.0");
+
+            for (int i = 0; i < difficultyThresholds.Length; i++)
+            {
+                if (gameTime > difficultyThresholds[i] && currentDifficulty < i + 1)
+                {
+                    currentDifficulty = i + 1;
+                    IncreaseDifficulty();
+                }
             }
         }
     }
