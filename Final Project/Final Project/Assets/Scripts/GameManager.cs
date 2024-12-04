@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     // the worth of points in relation to the current difficulty
     [SerializeField] private int[] difficultyPoints;
 
-    [SerializeField] private GameObject enemyShipPrefab;
+    [SerializeField] private GameObject[] enemyShipPrefabs;
     [SerializeField] private int enemySpawnChance = 30;
     [SerializeField] private GameObject asteroidPrefab;
     [SerializeField] private float obstacleSpawnTime = 2f;
@@ -45,6 +45,8 @@ public class GameManager : MonoBehaviour
     private bool gameRunning = false;
     private bool spawnObstacles = false;
 
+    private const string HIGHSCORE = "highscore";
+
     private void Start()
     {
         titleScreen.SetActive(true);
@@ -56,6 +58,9 @@ public class GameManager : MonoBehaviour
         UpdateHealthUI(0);
         highscoreUI.enabled = false;
         difficultyUI.enabled = false;
+
+        if (PlayerPrefs.HasKey(HIGHSCORE))
+            highestPoints = PlayerPrefs.GetInt(HIGHSCORE);
 
         SoundManager.instance.TitleMusic(true);
     }
@@ -88,6 +93,11 @@ public class GameManager : MonoBehaviour
     {
         gameRunning = false;
         spawnObstacles = false;
+
+        if (totalPoints > highestPoints)
+            highestPoints = totalPoints;
+
+        PlayerPrefs.SetInt(HIGHSCORE, highestPoints);
 
         GameOver.Invoke();
 
@@ -148,7 +158,9 @@ public class GameManager : MonoBehaviour
 
     private void SpawnEnemy()
     {
-        GameObject ship = Instantiate(enemyShipPrefab, RandomSpawn(), enemyShipPrefab.transform.rotation);
+        GameObject prefab = enemyShipPrefabs[Random.Range(0, enemyShipPrefabs.Length)];
+
+        GameObject ship = Instantiate(prefab, RandomSpawn(), prefab.transform.rotation);
         EnemyShip e = ship.GetComponent<EnemyShip>();
         e.SetPoints(difficultyPoints[currentDifficulty]);
         e.OnDeath.AddListener(AddPoints);
@@ -163,9 +175,7 @@ public class GameManager : MonoBehaviour
 
     public void AddPoints(int pts)
     {
-        totalPoints += pts;
-        if (totalPoints > highestPoints)
-            highestPoints = totalPoints;
+        totalPoints += pts;        
     }
 
     public int GetPoints()

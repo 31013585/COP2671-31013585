@@ -7,6 +7,8 @@ TagManager:
   - Laser
   - Enemy
   - Asteroid
+  - HealthRestore
+  - PowerUp
   layers:
   - Default
   - TransparentFX

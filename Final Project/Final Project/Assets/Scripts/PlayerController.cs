@@ -74,6 +74,26 @@ public class PlayerController : MonoBehaviour
             Die();
     }
 
+    public void Heal(int hp)
+    {
+        health += hp;
+        if (health > 5) health = 5;
+        gameManager.UpdateHealthUI(health);
+    }
+
+    public IEnumerator PowerUp()
+    {
+        moveSpeed = 12;
+        shootDelay = 0.25f;
+
+        yield return new WaitForSeconds(5);
+
+        moveSpeed = 8;
+        shootDelay = 0.5f;
+        SoundManager.instance.Hit();
+        yield return null;
+    }
+
     private void Die()
     {
         SoundManager.instance.Explosion();
@@ -92,6 +112,23 @@ public class PlayerController : MonoBehaviour
             ExplosionMaker.Instance.CreateExplosion(transform.position);
             Destroy(collision.gameObject);
             Die();
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("HealthRestore"))
+        {
+            Heal(other.GetComponent<HealthRestore>().RestoreAmount);
+            Destroy(other.gameObject);
+            SoundManager.instance.Explosion();
+        }
+        else if (other.gameObject.CompareTag("PowerUp"))
+        {
+            Destroy(other.gameObject);
+            StopCoroutine(PowerUp());
+            StartCoroutine(PowerUp());
+            SoundManager.instance.Explosion();
         }
     }
 

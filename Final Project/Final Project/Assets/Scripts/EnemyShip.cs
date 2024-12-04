@@ -12,6 +12,7 @@ public class EnemyShip : MonoBehaviour
     private Rigidbody rb;
 
     [SerializeField] private float laserShootTime = 1.5f;
+    [SerializeField] private int health = 1;
 
     public UnityEvent<int> OnDeath;
     private int points;
@@ -27,10 +28,14 @@ public class EnemyShip : MonoBehaviour
 
     public void Damage()
     {
-        OnDeath.Invoke(points);
-        SoundManager.instance.Explosion();
-        ExplosionMaker.Instance.CreateExplosion(gameObject.transform.position);
-        Destroy(gameObject);
+        health--;
+        if (health <= 0)
+        {
+            OnDeath.Invoke(points);
+            SoundManager.instance.Explosion();
+            ExplosionMaker.Instance.CreateExplosion(gameObject.transform.position);
+            Destroy(gameObject);
+        }
     }
 
     void Update()
